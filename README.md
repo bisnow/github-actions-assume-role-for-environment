@@ -33,6 +33,14 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Assume Role For Environment
-      uses: ./.github/actions/assume-role-for-environment
+      uses: bisnow/github-actions-assume-role-for-environment
       with:
         environment: 'biscred-dev'
+```
+
+Replace biscred-dev with the environment you wish to assume the role for.
+
+## Notes
+
+Ensure that the AWS credentials needed to assume the GitHub Actions role are correctly configured in your repository's secrets.
+Test this action in a controlled environment before integrating it into production workflows.
