@@ -1,5 +1,5 @@
 name: 'Assume Role For Environment'
-description: 'Assume role for Environment''
+description: 'Assume role for Environment'
 inputs:
   environment:
     description: 'Environment to assume'
