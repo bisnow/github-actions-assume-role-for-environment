@@ -9,7 +9,7 @@ runs:
   using: 'composite'
   steps: 
       - name: Set AWS Role ARN for environment
-        id: set_aws_role_arn
+        id: set-arn
         shell: bash
         run: |
           declare -A role_map=(
