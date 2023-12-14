@@ -1,0 +1,44 @@
+name: 'Assume Role For Environment'
+description: 'Assume role for Environment''
+inputs:
+  environment:
+    description: 'Environment to assume'
+    required: true
+
+runs:
+  using: 'composite'
+  steps: 
+      - name: Set AWS Role ARN for environment
+        id: set_aws_role_arn
+        shell: bash
+        run: |
+          declare -A role_map=(
+            [biscred-dev]="arn:aws:iam::520831634247:role/CDCIDeployRole"
+            [biscred-prod]="arn:aws:iam::559114230719:role/CDCIDeployRole"
+            [bisnow]="arn:aws:iam::560285300220:role/CDCIDeployRole"
+            [vapor]="arn:aws:iam::844919361971:role/CDCIDeployRole"
+          )
+
+          ROLE_ARN=${role_map["${{ inputs.environment }}"]}
+
+          if [ -z "$ROLE_ARN" ]; then
+            echo "Error: Invalid environment specified" >&2
+            exit 1
+          else
+            echo "::set-output name=AWS_ROLE_ARN::$ROLE_ARN"
+          fi
+
+      - name: Assume github actions role
+        uses: aws-actions/configure-aws-credentials@v4
+        with: 
+          role-to-assume: arn:aws:iam::702073508373:role/GithubActions
+          role-duration-seconds: 900
+          aws-region: ${{ env.AWS_REGION }}
+          disable-retry: true
+      - name: Assume biscred-dev deploy role with github actions role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:  
+          role-to-assume: ${{ steps.set-arn.outputs.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          disable-retry: true
+          role-chaining: true
