@@ -1,25 +1,32 @@
 name: 'Assume Role For Environment'
 description: 'Assume role for Environment'
 inputs:
-  environment:
-    description: 'Environment to assume'
+  aws_account:
+    description: 'AWS account to assume CDCI role for'
     required: true
 
 runs:
   using: 'composite'
   steps: 
-      - name: Set AWS Role ARN for environment
+      - name: Set AWS Role ARN for AWS account
         id: set-arn
         shell: bash
         run: |
-          declare -A role_map=(
-            [biscred-dev]="arn:aws:iam::520831634247:role/CDCIDeployRole"
-            [biscred-prod]="arn:aws:iam::559114230719:role/CDCIDeployRole"
-            [bisnow]="arn:aws:iam::560285300220:role/CDCIDeployRole"
-            [vapor]="arn:aws:iam::844919361971:role/CDCIDeployRole"
-          )
+          if [ "${{ inputs.aws_account }}" == "biscred-dev" ]; then
+              ROLE_ARN="arn:aws:iam::520831634247:role/CDCIDeployRole"
+          elif [ "${{ inputs.aws_account }}" == "biscred-prod" ]; then
+              ROLE_ARN="arn:aws:iam::559114230719:role/CDCIDeployRole"
+          elif [ "${{ inputs.aws_account }}" == "bisnow" ]; then
+              ROLE_ARN="arn:aws:iam::560285300220:role/CDCIDeployRole"
+          elif [ "${{ inputs.aws_account }}" == "vapor" ]; then
+              ROLE_ARN="arn:aws:iam::844919361971:role/CDCIDeployRole"
+          else
+              echo "Error: Invalid aws account specified" >&2
+              exit 1
+          fi
 
-          ROLE_ARN=${role_map["${{ inputs.environment }}"]}
+          echo "::set-output name=AWS_ROLE_ARN::$ROLE_ARN"
+
 
           if [ -z "$ROLE_ARN" ]; then
             echo "Error: Invalid environment specified" >&2
