@@ -8,44 +8,39 @@ inputs:
 runs:
   using: 'composite'
   steps: 
-      - name: Set AWS Role ARN for AWS account
-        id: set-arn
-        shell: bash
-        run: |
-          if [ "${{ inputs.aws_account }}" == "biscred-dev" ]; then
-              ROLE_ARN="arn:aws:iam::520831634247:role/CDCIDeployRole"
-          elif [ "${{ inputs.aws_account }}" == "biscred-prod" ]; then
-              ROLE_ARN="arn:aws:iam::559114230719:role/CDCIDeployRole"
-          elif [ "${{ inputs.aws_account }}" == "bisnow" ]; then
-              ROLE_ARN="arn:aws:iam::560285300220:role/CDCIDeployRole"
-          elif [ "${{ inputs.aws_account }}" == "vapor" ]; then
-              ROLE_ARN="arn:aws:iam::844919361971:role/CDCIDeployRole"
-          else
-              echo "Error: Invalid aws account specified" >&2
-              exit 1
-          fi
-
-          echo "::set-output name=AWS_ROLE_ARN::$ROLE_ARN"
-
-
-          if [ -z "$ROLE_ARN" ]; then
-            echo "Error: Invalid environment specified" >&2
+    - name: Set AWS Role ARN for AWS account
+      id: set-arn
+      env:
+        AWS_ACCOUNT: ${{ inputs.aws_account }}  # Map input to environment variable
+      shell: bash
+      run: |
+        if [ "$AWS_ACCOUNT" == "biscred-dev" ]; then
+            ROLE_ARN="arn:aws:iam::520831634247:role/CDCIDeployRole"
+        elif [ "$AWS_ACCOUNT" == "biscred-prod" ]; then
+            ROLE_ARN="arn:aws:iam::559114230719:role/CDCIDeployRole"
+        elif [ "$AWS_ACCOUNT" == "bisnow" ]; then
+            ROLE_ARN="arn:aws:iam::560285300220:role/CDCIDeployRole"
+        elif [ "$AWS_ACCOUNT" == "vapor" ]; then
+            ROLE_ARN="arn:aws:iam::844919361971:role/CDCIDeployRole"
+        else
+            echo "Error: Invalid aws account specified" >&2
             exit 1
-          else
-            echo "::set-output name=AWS_ROLE_ARN::$ROLE_ARN"
-          fi
+        fi
 
-      - name: Assume github actions role
-        uses: aws-actions/configure-aws-credentials@v4
-        with: 
-          role-to-assume: arn:aws:iam::702073508373:role/GithubActions
-          role-duration-seconds: 900
-          aws-region: ${{ env.AWS_REGION }}
-          disable-retry: true
-      - name: Assume biscred-dev deploy role with github actions role
-        uses: aws-actions/configure-aws-credentials@v4
-        with:  
-          role-to-assume: ${{ steps.set-arn.outputs.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-          disable-retry: true
-          role-chaining: true
+        echo "::set-output name=AWS_ROLE_ARN::$ROLE_ARN"
+
+    - name: Assume github actions role
+      uses: aws-actions/configure-aws-credentials@v4
+      with: 
+        role-to-assume: arn:aws:iam::702073508373:role/GithubActions
+        role-duration-seconds: 900
+        aws-region: ${{ env.AWS_REGION }}
+        disable-retry: true
+
+    - name: Assume biscred-dev deploy role with github actions role
+      uses: aws-actions/configure-aws-credentials@v4
+      with:  
+        role-to-assume: ${{ steps.set-arn.outputs.AWS_ROLE_ARN }}
+        aws-region: ${{ env.AWS_REGION }}
+        disable-retry: true
+        role-chaining: true
