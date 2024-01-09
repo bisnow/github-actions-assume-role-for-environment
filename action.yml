@@ -22,6 +22,8 @@ runs:
             ROLE_ARN="arn:aws:iam::560285300220:role/CDCIDeployRole"
         elif [ "$AWS_ACCOUNT" == "vapor" ]; then
             ROLE_ARN="arn:aws:iam::844919361971:role/CDCIDeployRole"
+        elif [ "$AWS_ACCOUNT" == "selectleaders" ]; then
+            ROLE_ARN="arn:aws:iam::265833082685:role/CDCIDeployRole"
         else
             echo "Error: Invalid aws account specified" >&2
             exit 1
