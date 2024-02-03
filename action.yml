@@ -1,9 +1,13 @@
 name: 'Assume Role For Environment'
 description: 'Assume role for Environment'
 inputs:
-  aws_account:
+  aws-account:
     description: 'AWS account to assume CDCI role for'
     required: true
+  aws-region:
+    description: 'AWS region'
+    required: false
+    default: 'us-east-1'
 
 runs:
   using: 'composite'
@@ -11,7 +15,7 @@ runs:
     - name: Set AWS Role ARN for AWS account
       id: set-arn
       env:
-        AWS_ACCOUNT: ${{ inputs.aws_account }}  # Map input to environment variable
+        AWS_ACCOUNT: ${{ inputs.aws-account }}  # Map input to environment variable
       shell: bash
       run: |
         if [ "$AWS_ACCOUNT" == "biscred-dev" ]; then
@@ -36,13 +40,13 @@ runs:
       with: 
         role-to-assume: arn:aws:iam::702073508373:role/GithubActions
         role-duration-seconds: 900
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ inputs.aws-region }}
         disable-retry: true
 
     - name: Assume biscred-dev deploy role with github actions role
       uses: aws-actions/configure-aws-credentials@v4
       with:  
         role-to-assume: ${{ steps.set-arn.outputs.AWS_ROLE_ARN }}
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ inputs.aws-region }}
         disable-retry: true
         role-chaining: true
