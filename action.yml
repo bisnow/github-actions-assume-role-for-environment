@@ -33,7 +33,7 @@ runs:
             exit 1
         fi
 
-        echo "::set-output name=AWS_ROLE_ARN::$ROLE_ARN"
+        echo "AWS_ROLE_ARN=$ROLE_ARN" >> $GITHUB_OUTPUT
 
     - name: Assume github actions role
       uses: aws-actions/configure-aws-credentials@v4
