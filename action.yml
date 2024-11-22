@@ -20,6 +20,8 @@ runs:
       run: |
         if [ "$AWS_ACCOUNT" == "biscred-dev" ]; then
             ROLE_ARN="arn:aws:iam::520831634247:role/CDCIDeployRole"
+        elif [ "$AWS_ACCOUNT" == "bisnow-root" ]; then
+            ROLE_ARN="arn:aws:iam::702073508373:role/CDCIDeployRole"
         elif [ "$AWS_ACCOUNT" == "biscred-prod" ]; then
             ROLE_ARN="arn:aws:iam::559114230719:role/CDCIDeployRole"
         elif [ "$AWS_ACCOUNT" == "bisnow" ]; then
